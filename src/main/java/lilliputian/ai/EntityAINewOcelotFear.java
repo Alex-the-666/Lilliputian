@@ -21,5 +21,10 @@ public class EntityAINewOcelotFear extends EntityAIAvoidEntity<EntityPlayer> {
 		}
 		return false;
 	}
+	
+	@Override
+	public boolean shouldExecute() {
+		return super.shouldExecute() && this.closestLivingEntity != null && EntitySizeUtil.getEntityScale(this.closestLivingEntity) > EntitySizeUtil.TINY_THRESHOLD;
+	}
 
 }
