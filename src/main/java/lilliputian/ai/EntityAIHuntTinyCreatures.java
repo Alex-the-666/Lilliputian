@@ -22,4 +22,10 @@ public class EntityAIHuntTinyCreatures extends EntityAINearestAttackableTarget {
 		return false;
 	}
 	
+	@Override
+	public boolean shouldContinueExecuting(){
+        return super.shouldContinueExecuting() && EntitySizeUtil.getEntityScale(this.targetEntity) <= EntitySizeUtil.TINY_THRESHOLD;
+    }
+
+	
 }
