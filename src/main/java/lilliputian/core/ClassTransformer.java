@@ -1,27 +1,14 @@
 package lilliputian.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.FrameNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.*;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.launchwrapper.IClassTransformer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import java.util.List;
 
 public class ClassTransformer implements IClassTransformer {
 
@@ -37,10 +24,6 @@ public class ClassTransformer implements IClassTransformer {
 			return patchEntityASM(name, basicClass, !name.equals(transformedName));
 		} else if (transformedName.equals("net.minecraft.entity.EntityLivingBase")) {
 			return patchEntityLivingBaseASM(name, basicClass, !name.equals(transformedName));
-		} else if (transformedName.equals("net.minecraft.client.multiplayer.PlayerControllerMP")) {
-			return patchPlayerControllerMPASM(name, basicClass, !name.equals(transformedName));
-		} else if (transformedName.equals("net.minecraft.server.management.PlayerInteractionManager")) {
-			return patchPlayerInteractionManagerASM(name, basicClass, !name.equals(transformedName));
 		} else if (transformedName.equals("net.minecraft.block.BlockCactus")) {
 			return patchBlockCactusASM(name, basicClass, !name.equals(transformedName));
 		} else if (transformedName.contains("Entity") && !transformedName.contains("minecraftforge")) {
@@ -455,122 +438,7 @@ public class ClassTransformer implements IClassTransformer {
 
 		return writer.toByteArray();
 	}
-	
-	@SideOnly(Side.CLIENT)
-	public byte[] patchPlayerControllerMPASM(String name, byte[] bytes, boolean obfuscated) {
-		String getBlockReachDistance = "";
-		
-		String mc = "";
-		String player = "";
-		
-		String entityName = "";
-		String minecraftName = "";
-		String playerName = "";
-		
-		if (obfuscated) {
-			getBlockReachDistance = "func_78757_d";
-			
-			mc = "field_78776_a";
-			player = "field_71439_g";
-			
-			entityName = "Lnet/minecraft/entity/Entity;";
-			minecraftName = "Lnet/minecraft/client/Minecraft;";
-			playerName = "Lnet/minecraft/client/entity/EntityPlayerSP;";
-		} else {
-			getBlockReachDistance = "getBlockReachDistance";
-			
-			mc = "mc";
-			player = "player";
-			
-			entityName = "Lnet/minecraft/entity/Entity;";
-			minecraftName = "Lnet/minecraft/client/Minecraft;";
-			playerName = "Lnet/minecraft/client/entity/EntityPlayerSP;";
-		}
 
-		ClassNode classNode = new ClassNode();
-		ClassReader classReader = new ClassReader(bytes);
-		classReader.accept(classNode, 0);
-
-		List<MethodNode> methods = classNode.methods;
-
-		for (MethodNode m : methods) {
-			if (m.name.equals(getBlockReachDistance)) {
-				System.out.println("Found method " + name + "." + m.name + "" + m.desc);
-				InsnList code = m.instructions;
-				MethodInsnNode method = new MethodInsnNode(Opcodes.INVOKESTATIC, "lilliputian/util/EntitySizeUtil",
-						"getEntityScaleRoot", "(" + entityName + ")F", false);
-				/*int i = 0;
-				for (AbstractInsnNode n : code.toArray()) {
-					System.out.println(i + " -> " + n.getOpcode() + " " + n.getType());
-					i++;
-				}*/
-				code.insertBefore(code.get(13), new VarInsnNode(Opcodes.ALOAD, 0));
-				code.insertBefore(code.get(14), new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/multiplayer/PlayerControllerMP", mc, minecraftName));
-				code.insertBefore(code.get(15), new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/Minecraft", player, playerName));
-				code.insertBefore(code.get(16), method);
-				code.insertBefore(code.get(17), new InsnNode(Opcodes.FMUL));
-			}
-		}
-
-		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-		classNode.accept(writer);
-
-		return writer.toByteArray();
-	}
-	
-	public byte[] patchPlayerInteractionManagerASM(String name, byte[] bytes, boolean obfuscated) {
-		String getBlockReachDistance = "";
-		
-		String player = "";
-		
-		String entityName = "";
-		String playerName = "";
-		
-		if (obfuscated) {
-			getBlockReachDistance = "getBlockReachDistance";
-			
-			player = "field_73090_b";
-			
-			entityName = "Lnet/minecraft/entity/Entity;";
-			playerName = "Lnet/minecraft/entity/player/EntityPlayerMP;";
-		} else {
-			getBlockReachDistance = "getBlockReachDistance";
-			
-			player = "player";
-			
-			entityName = "Lnet/minecraft/entity/Entity;";
-			playerName = "Lnet/minecraft/entity/player/EntityPlayerMP;";
-		}
-
-		ClassNode classNode = new ClassNode();
-		ClassReader classReader = new ClassReader(bytes);
-		classReader.accept(classNode, 0);
-
-		List<MethodNode> methods = classNode.methods;
-
-		for (MethodNode m : methods) {
-			if (m.name.equals(getBlockReachDistance)) {
-				System.out.println("Found method " + name + "." + m.name + "" + m.desc);
-				InsnList code = m.instructions;
-				MethodInsnNode method = new MethodInsnNode(Opcodes.INVOKESTATIC, "lilliputian/util/EntitySizeUtil",
-						"getEntityScaleRootDouble", "(" + entityName + ")D", false);
-				/*int i = 0;
-				for (AbstractInsnNode n : code.toArray()) {
-					System.out.println(i + " -> " + n.getOpcode() + " " + n.getType());
-					i++;
-				}*/
-				code.insertBefore(code.get(4), new VarInsnNode(Opcodes.ALOAD, 0));
-				code.insertBefore(code.get(5), new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/server/management/PlayerInteractionManager", player, playerName));
-				code.insertBefore(code.get(6), method);
-				code.insertBefore(code.get(7), new InsnNode(Opcodes.DMUL));
-			}
-		}
-
-		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-		classNode.accept(writer);
-
-		return writer.toByteArray();
-	}
 	
 	public byte[] patchGenericEntityASM(String name, byte[] bytes, boolean obfuscated) {
 		String getEyeHeight = "";

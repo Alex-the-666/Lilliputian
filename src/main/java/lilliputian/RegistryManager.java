@@ -1,6 +1,5 @@
 package lilliputian;
 
-import lilliputian.compat.RusticCompat;
 import lilliputian.potions.PotionLilliputian;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -17,7 +16,6 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
@@ -190,9 +188,6 @@ public class RegistryManager {
 					PotionUtils.addPotionToItemStack(new ItemStack(Items.SPLASH_POTION), PotionLilliputian.STRONG_GROWING),
 					new ItemStack(Items.DRAGON_BREATH), PotionUtils
 							.addPotionToItemStack(new ItemStack(Items.LINGERING_POTION), PotionLilliputian.STRONG_GROWING));
-		if (Loader.isModLoaded("rustic")) {
-			RusticCompat.initElixirs();
-		}
 	}
 
 	@SubscribeEvent

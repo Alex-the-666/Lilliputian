@@ -1,13 +1,5 @@
 package lilliputian.handlers;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import lilliputian.Config;
 import lilliputian.Lilliputian;
 import lilliputian.ai.EntityAIHuntTinyCreatures;
@@ -23,37 +15,24 @@ import net.minecraft.block.BlockDoublePlant;
 import net.minecraft.block.BlockDoublePlant.EnumBlockHalf;
 import net.minecraft.block.BlockDoublePlant.EnumPlantType;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.MoverType;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
-import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.entity.monster.EntityShulker;
 import net.minecraft.entity.passive.EntityOcelot;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Tuple;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.PlayerSPPushOutOfBlocksEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -65,20 +44,16 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
-import net.minecraftforge.event.world.ExplosionEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
-import net.minecraftforge.fml.common.registry.EntityEntry;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.lang.reflect.Field;
+import java.util.*;
 
 @EventBusSubscriber(modid = Lilliputian.MODID)
 public class EntitySizeHandler {
@@ -96,6 +71,8 @@ public class EntitySizeHandler {
 			UUID.fromString("1E7E2380-2E87-45B6-A90C-869563A27FA3"), "size_speed_mod", 1 - 1, 1);
 	public static final AttributeModifier ATTACK_SPEED_MODIFIER = new AttributeModifier(
 			UUID.fromString("174DEEAF-A876-4666-BFEB-709960E09021"), "size_attack_speed_mod", 1 - 1, 1);
+	public static final AttributeModifier REACH_MODIFIER = new AttributeModifier(
+			UUID.fromString("d95198ba-b3c0-11e8-96f8-529269fb1459"), "size_reach_mod", 1 - 1, 1);
 
 	@SubscribeEvent
 	public static void onAddCapabilites(AttachCapabilitiesEvent event) {
@@ -174,6 +151,12 @@ public class EntitySizeHandler {
 					}
 				}
 
+				if (entity.getEntityAttribute(EntityPlayer.REACH_DISTANCE) != null) {
+					IAttributeInstance speedAttribute = entity.getEntityAttribute(EntityPlayer.REACH_DISTANCE);
+					double speedMod = Math.pow(size.getActualSize(), 0.25) - 1;
+					speedAttribute.removeModifier(REACH_MODIFIER.getID());
+					speedAttribute.applyModifier(new AttributeModifier(REACH_MODIFIER.getID(), REACH_MODIFIER.getName(), speedMod, REACH_MODIFIER.getOperation()).setSaved(false));
+				}
 				if (entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED) != null) {
 					IAttributeInstance speedAttribute = entity
 							.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
