@@ -1,6 +1,5 @@
 package lilliputian.capabilities;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 
 public interface ISizeCapability {
@@ -15,7 +14,9 @@ public interface ISizeCapability {
 	public float getActualScaleNoClamp();
 	public void setActualScale(float actualScale);
 	public float getPrevScale();
-	
+	public float getLimbSwingAmount();
+	public void setLimbSwingAmount(float limbSwingAmount);
+
 	public int getMorphTime();
 	public int getMaxMorphTime();
 	public void setMorphing();

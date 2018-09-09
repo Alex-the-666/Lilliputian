@@ -2,16 +2,13 @@ package lilliputian.util;
 
 import lilliputian.capabilities.ISizeCapability;
 import lilliputian.capabilities.SizeProvider;
-import lilliputian.handlers.EntitySizeHandler;
 import lilliputian.handlers.RenderEntityHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -72,7 +69,7 @@ public class EntitySizeUtil {
 
 	@SideOnly(Side.CLIENT)
 	public static float getCameraNearPlane() {
-		return 0.05F * Math.min(getEntityScale(Minecraft.getMinecraft().getRenderViewEntity()), 1);
+		return 0.01F * Math.min(getEntityScale(Minecraft.getMinecraft().getRenderViewEntity()), 1);
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -128,5 +125,4 @@ public class EntitySizeUtil {
 		}
 		return false;
 	}
-
 }

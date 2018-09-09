@@ -152,10 +152,10 @@ public class EntitySizeHandler {
 				}
 
 				if (entity.getEntityAttribute(EntityPlayer.REACH_DISTANCE) != null) {
-					IAttributeInstance speedAttribute = entity.getEntityAttribute(EntityPlayer.REACH_DISTANCE);
-					double speedMod = Math.pow(size.getActualSize(), 0.25) - 1;
-					speedAttribute.removeModifier(REACH_MODIFIER.getID());
-					speedAttribute.applyModifier(new AttributeModifier(REACH_MODIFIER.getID(), REACH_MODIFIER.getName(), speedMod, REACH_MODIFIER.getOperation()).setSaved(false));
+					IAttributeInstance reachAttribute = entity.getEntityAttribute(EntityPlayer.REACH_DISTANCE);
+					double reachMod = Math.max(size.getActualSize(), 0.5) - 1;
+					reachAttribute.removeModifier(REACH_MODIFIER.getID());
+					reachAttribute.applyModifier(new AttributeModifier(REACH_MODIFIER.getID(), REACH_MODIFIER.getName(), reachMod, REACH_MODIFIER.getOperation()).setSaved(false));
 				}
 				if (entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED) != null) {
 					IAttributeInstance speedAttribute = entity
@@ -233,7 +233,7 @@ public class EntitySizeHandler {
 		}
 	}
 
-	@SubscribeEvent
+		@SubscribeEvent
 	public static void playerJoinWorld(EntityJoinWorldEvent event) {
 		if (event.getEntity().world != null && !event.getEntity().world.isRemote
 				&& event.getEntity().hasCapability(SizeProvider.sizeCapability, null)) {

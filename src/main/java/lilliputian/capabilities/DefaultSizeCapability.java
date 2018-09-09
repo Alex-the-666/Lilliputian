@@ -1,7 +1,6 @@
 package lilliputian.capabilities;
 
 import lilliputian.util.EntitySizeUtil;
-import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 
@@ -11,7 +10,8 @@ public class DefaultSizeCapability implements ISizeCapability {
 	private float scale = 1F;
 	private float actualScale = 1F;
 	private float prevScale = 1F;
-	
+	private float limbSwingAmount = 0F;
+
 	private int morphTime = 0;
 	
 	public DefaultSizeCapability() {
@@ -85,6 +85,16 @@ public class DefaultSizeCapability implements ISizeCapability {
 	@Override
 	public float getPrevScale() {
 		return this.prevScale;
+	}
+
+	@Override
+	public float getLimbSwingAmount() {
+		return limbSwingAmount;
+	}
+
+	@Override
+	public void setLimbSwingAmount(float limbSwingAmount) {
+		this.limbSwingAmount = limbSwingAmount;
 	}
 
 	@Override

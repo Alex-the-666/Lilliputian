@@ -1,17 +1,20 @@
 package lilliputian.handlers;
 
 import lilliputian.Lilliputian;
+import lilliputian.capabilities.ISizeCapability;
+import lilliputian.capabilities.SizeProvider;
 import lilliputian.util.EntitySizeUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -24,10 +27,21 @@ import java.util.ArrayList;
 public class RenderEntityHandler {
 	public static ArrayList<Multiplier> cache = new ArrayList<>();
 
+
+	@SubscribeEvent
+	public static void playSoundAtEntity(PlaySoundAtEntityEvent event) {
+		Entity entity = Minecraft.getMinecraft().player;
+		if(entity != null) {
+			float entitySize = EntitySizeUtil.getEntityScale(entity);
+			event.setVolume(event.getVolume() * MathHelper.sqrt(entitySize));
+			event.setPitch(event.getPitch() * entitySize);
+		}
+	}
+
+
 	@SubscribeEvent
 	public static void renderEntityPre(RenderLivingEvent.Pre event) {
 		float scale = EntitySizeUtil.getEntityScale(event.getEntity());
-
 		GlStateManager.pushMatrix();
 
 		GlStateManager.scale(scale, scale, scale);
@@ -36,6 +50,27 @@ public class RenderEntityHandler {
 		if (event.getEntity().isSneaking()) {
 			GlStateManager.translate(0, 0.125F / scale, 0);
 			GlStateManager.translate(0, -0.125F, 0);
+		}
+
+		if(event.getEntity() instanceof EntityLivingBase){
+			EntityLivingBase entity = (EntityLivingBase)event.getEntity();
+			if(entity.hasCapability(SizeProvider.sizeCapability, null)) {
+				ISizeCapability size = entity.getCapability(SizeProvider.sizeCapability, null);
+				double d5 = entity.posX - entity.prevPosX;
+				double d7 = entity.posZ - entity.prevPosZ;
+				double d9 = entity instanceof net.minecraft.entity.passive.EntityFlying ? entity.posY - entity.prevPosY : 0.0D;
+				float f10 = MathHelper.sqrt(d5 * d5 + d9 * d9 + d7 * d7) * 4.0F * 1 / size.getActualSize();
+
+				if (f10 > 1.0F) {
+					f10 = 1.0F;
+				}
+				entity.prevLimbSwingAmount = size.getLimbSwingAmount();
+				size.setLimbSwingAmount(size.getLimbSwingAmount() + (f10 - size.getLimbSwingAmount()) * 0.4F);
+				if (entity.hurtTime == entity.maxHurtTime && entity.maxHurtTime > 0) {
+					size.setLimbSwingAmount(1.5F);
+				}
+				entity.limbSwingAmount = size.getLimbSwingAmount();
+			}
 		}
 	}
 
@@ -68,14 +103,13 @@ public class RenderEntityHandler {
 	@SubscribeEvent
 	public static void setupCamera(EntityViewRenderEvent.CameraSetup event) {
 		float scale = EntitySizeUtil.getEntityScale(event.getEntity());
-
-		if (!(event.getEntity() instanceof EntityLivingBase
-				&& ((EntityLivingBase) event.getEntity()).isPlayerSleeping())
-				&& Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
+		if (!(event.getEntity() instanceof EntityLivingBase && ((EntityLivingBase) event.getEntity()).isPlayerSleeping()) && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) {
 			GlStateManager.translate(0, 0, -0.05F);
 			GlStateManager.translate(0, 0, (scale * 0.05F));
 		}
+
 	}
+
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
