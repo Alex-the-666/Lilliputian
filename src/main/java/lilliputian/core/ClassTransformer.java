@@ -403,15 +403,26 @@ public class ClassTransformer implements IClassTransformer {
 		String isOnLadder = "";
 		
 		String entityName = "";
-		
+
+		String getSoundVolume = "";
+
+		String getSoundPitch = "";
 		if (obfuscated) {
 			isOnLadder = "func_70617_f_";
 			
 			entityName = "Lnet/minecraft/entity/Entity;";
+
+			getSoundVolume = "func_70599_aP";
+
+			getSoundPitch = "func_70647_i";
 		} else {
 			isOnLadder = "isOnLadder";
 			
 			entityName = "Lnet/minecraft/entity/Entity;";
+
+			getSoundVolume = "getSoundVolume";
+
+			getSoundPitch = "getSoundPitch";
 		}
 
 		ClassNode classNode = new ClassNode();
@@ -430,6 +441,26 @@ public class ClassTransformer implements IClassTransformer {
 				code.insertBefore(code.get(67), new VarInsnNode(Opcodes.ALOAD, 0));
 				code.insertBefore(code.get(68), method);
 				code.insertBefore(code.get(69), new InsnNode(Opcodes.IOR));
+			}
+			if (m.name.equals(getSoundVolume)) {
+				System.out.println("Found method " + name + "." + m.name + "" + m.desc);
+				InsnList code = m.instructions;
+				MethodInsnNode method = new MethodInsnNode(Opcodes.INVOKESTATIC, "lilliputian/util/EntitySizeUtil",
+						"getSoundVolume", "(" + entityName + ")F", false);
+
+				code.insertBefore(code.get(70), new VarInsnNode(Opcodes.ALOAD, 0));
+				code.insertBefore(code.get(71), method);
+				code.insertBefore(code.get(72), new InsnNode(Opcodes.IOR));
+			}
+			if (m.name.equals(getSoundPitch)) {
+				System.out.println("Found method " + name + "." + m.name + "" + m.desc);
+				InsnList code = m.instructions;
+				MethodInsnNode method = new MethodInsnNode(Opcodes.INVOKESTATIC, "lilliputian/util/EntitySizeUtil",
+						"getSoundPitch", "(" + entityName + ")F", false);
+
+				code.insertBefore(code.get(73), new VarInsnNode(Opcodes.ALOAD, 0));
+				code.insertBefore(code.get(74), method);
+				code.insertBefore(code.get(75), new InsnNode(Opcodes.IOR));
 			}
 		}
 

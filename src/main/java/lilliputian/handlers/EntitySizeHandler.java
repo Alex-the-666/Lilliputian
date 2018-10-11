@@ -313,16 +313,18 @@ public class EntitySizeHandler {
 	@SubscribeEvent
 	public static void onEntityJump(LivingEvent.LivingJumpEvent event) {
 		if (!event.getEntityLiving().isSneaking() && EntitySizeUtil.getEntityScale(event.getEntityLiving()) > 1) {
-			event.getEntityLiving().motionY *= MathHelper
-					.sqrt(Math.max(EntitySizeUtil.getEntityScale(event.getEntityLiving()), 1));
+			event.getEntityLiving().motionY *= Math.max(EntitySizeUtil.getEntityScale(event.getEntityLiving()), 0.5F);
 			event.getEntityLiving().velocityChanged = true;
 		}
 	}
 
 	@SubscribeEvent
 	public static void breakSpeed(PlayerEvent.BreakSpeed event) {
-		event.setNewSpeed(
-				event.getNewSpeed() * MathHelper.sqrt(EntitySizeUtil.getEntityScale(event.getEntityPlayer())));
+		if (event.getEntityPlayer() != null && event.getEntityPlayer().hasCapability(SizeProvider.sizeCapability, null)) {
+			EntityPlayer entity = event.getEntityPlayer();
+			float entitySize = EntitySizeUtil.getEntityScale(entity);
+			event.setNewSpeed(event.getOriginalSpeed() * entitySize);
+		}
 	}
 
 	@SubscribeEvent
@@ -415,6 +417,7 @@ public class EntitySizeHandler {
 			event.setPitch(event.getPitch() * entitySize);
 		}
 	}
+
 
 	private static void setEntitySize(Entity entity, float width, float height) {
 		if (width != entity.width || height != entity.height) {

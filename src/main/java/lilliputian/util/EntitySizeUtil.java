@@ -125,4 +125,12 @@ public class EntitySizeUtil {
 		}
 		return false;
 	}
+
+	public static float getSoundPitch(Entity entity) {
+		return 1.0F;
+	}
+
+	public static float getSoundVolume(Entity entity) {
+		return 1.0F;
+	}
 }
