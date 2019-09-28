@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.util.DamageSource;
@@ -117,7 +118,7 @@ public class EntitySizeUtil {
 		RenderEntityHandler.registerMultiplier(x, y, scaleText);
 	}
 
-	public static boolean isOnLadder(Entity entity) {
+	public static boolean isOnLadder(EntityLivingBase entity) {
 		if (entity instanceof EntityPlayer && getEntityScale(entity) <= TINY_THRESHOLD && entity.collidedHorizontally) {
 			EntityPlayer player = (EntityPlayer) entity;
 			return (player.getHeldItemMainhand().getItem() == Items.SLIME_BALL
@@ -126,11 +127,11 @@ public class EntitySizeUtil {
 		return false;
 	}
 
-	public static float getSoundPitch(Entity entity) {
-		return 1.0F;
+	public static float getSoundPitch(EntityLivingBase entity) {
+		return Math.max(1.0F / getEntityScale(entity), 4F);
 	}
 
-	public static float getSoundVolume(Entity entity) {
-		return 1.0F;
+	public static float getSoundVolume(EntityLivingBase entity) {
+		return Math.min(getEntityScale(entity), 0.5F);
 	}
 }

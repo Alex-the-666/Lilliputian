@@ -26,6 +26,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.*;
@@ -173,10 +174,14 @@ public class EntitySizeHandler {
 							new AttributeModifier(ATTACK_SPEED_MODIFIER.getID(), ATTACK_SPEED_MODIFIER.getName(),
 									speedMod, ATTACK_SPEED_MODIFIER.getOperation()).setSaved(false));
 				}
-
 				if (entity instanceof EntityPlayer) {
 					float actualSize = size.getActualSize();
 					entity.stepHeight = (actualSize < 0.6F) ? actualSize : (actualSize > 1F) ? actualSize * 0.6F : 0.6F;
+					if(entity.isOnLadder() && entity.getHeldItemMainhand().getItem() == Items.SLIME_BALL && entity.getHeldItemOffhand().getItem() == Items.SLIME_BALL){
+						if(Math.abs(entity.motionY) > 0.1F && entity.ticksExisted % 20 == 0){
+							entity.playSound(SoundEvents.ENTITY_SMALL_SLIME_HURT, 1.0F, 1.5F + entity.getRNG().nextFloat());
+						}
+					}
 				}
 
 				if (entity.isElytraFlying() && (entity.rotationPitch > 45 && entity.rotationPitch < 10)

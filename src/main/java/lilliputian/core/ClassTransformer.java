@@ -359,18 +359,15 @@ public class ClassTransformer implements IClassTransformer {
 	public byte[] patchEntityASM(String name, byte[] bytes, boolean obfuscated) {
 		String isEntityInsideOpaqueBlock = "";
 		String getMountedYOffset = "";
-		
 		String entityName = "";
 		
 		if (obfuscated) {
 			isEntityInsideOpaqueBlock = "func_70094_T";
 			getMountedYOffset = "func_70042_X";
-			
 			entityName = "Lnet/minecraft/entity/Entity;";
 		} else {
 			isEntityInsideOpaqueBlock = "isEntityInsideOpaqueBlock";
 			getMountedYOffset = "getMountedYOffset";
-			
 			entityName = "Lnet/minecraft/entity/Entity;";
 		}
 
@@ -410,7 +407,7 @@ public class ClassTransformer implements IClassTransformer {
 		if (obfuscated) {
 			isOnLadder = "func_70617_f_";
 			
-			entityName = "Lnet/minecraft/entity/Entity;";
+			entityName = "Lnet/minecraft/entity/EntityLivingBase;";
 
 			getSoundVolume = "func_70599_aP";
 
@@ -418,7 +415,7 @@ public class ClassTransformer implements IClassTransformer {
 		} else {
 			isOnLadder = "isOnLadder";
 			
-			entityName = "Lnet/minecraft/entity/Entity;";
+			entityName = "Lnet/minecraft/entity/EntityLivingBase;";
 
 			getSoundVolume = "getSoundVolume";
 
@@ -448,9 +445,13 @@ public class ClassTransformer implements IClassTransformer {
 				MethodInsnNode method = new MethodInsnNode(Opcodes.INVOKESTATIC, "lilliputian/util/EntitySizeUtil",
 						"getSoundVolume", "(" + entityName + ")F", false);
 
-				code.insertBefore(code.get(70), new VarInsnNode(Opcodes.ALOAD, 0));
-				code.insertBefore(code.get(71), method);
-				code.insertBefore(code.get(72), new InsnNode(Opcodes.IOR));
+				for (int i = code.size() - 1; i >= 0; i--) {
+					if (code.get(i).getOpcode() == Opcodes.FRETURN) {
+						code.insertBefore(code.get(i), new VarInsnNode(Opcodes.ALOAD, 0));
+						code.insertBefore(code.get(i + 1), method);
+						code.insertBefore(code.get(i + 2), new InsnNode(Opcodes.FMUL));
+					}
+				}
 			}
 			if (m.name.equals(getSoundPitch)) {
 				System.out.println("Found method " + name + "." + m.name + "" + m.desc);
@@ -458,9 +459,13 @@ public class ClassTransformer implements IClassTransformer {
 				MethodInsnNode method = new MethodInsnNode(Opcodes.INVOKESTATIC, "lilliputian/util/EntitySizeUtil",
 						"getSoundPitch", "(" + entityName + ")F", false);
 
-				code.insertBefore(code.get(73), new VarInsnNode(Opcodes.ALOAD, 0));
-				code.insertBefore(code.get(74), method);
-				code.insertBefore(code.get(75), new InsnNode(Opcodes.IOR));
+				for (int i = code.size() - 1; i >= 0; i--) {
+					if (code.get(i).getOpcode() == Opcodes.FRETURN) {
+						code.insertBefore(code.get(i), new VarInsnNode(Opcodes.ALOAD, 0));
+						code.insertBefore(code.get(i + 1), method);
+						code.insertBefore(code.get(i + 2), new InsnNode(Opcodes.FMUL));
+					}
+				}
 			}
 		}
 
